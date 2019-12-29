@@ -14,9 +14,11 @@ import (
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
-	sendEmail()
 }
-func sendEmail() {
+
+func forwardEmail(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Email forwarded")
+
 	domain := os.Getenv("MAILGUN_DOMAINS")
 	secretKey := os.Getenv("MAILGUN_PRIVATE_KEY")
 	emailSender := os.Getenv("EMAIL_SENDER")
@@ -47,12 +49,15 @@ func sendEmail() {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv("APP_ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
-	log.Print("cdc")
+
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/forward", forwardEmail)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
