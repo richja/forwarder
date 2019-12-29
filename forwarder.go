@@ -59,5 +59,6 @@ func main() {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/forward", forwardEmail)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	port := ":" + os.Getenv("PORT")
+	log.Fatal(http.ListenAndServe(port, nil))
 }
