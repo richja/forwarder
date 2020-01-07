@@ -19,12 +19,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func forwardEmail(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Email forwarded")
 
-	if err := r.ParseForm(); err != nil {
+	/*if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
-	}
-	fmt.Printf("Post from website! r.PostForm = %v\n", r.PostForm)
-	fmt.Printf("Post from website! r.Form = %v\n", r.Form)
+	}*/
+	fmt.Printf("Post from website! subject = %v\n", r.FormValue("Subject"))
+	fmt.Printf("Post from website! body-html = %v\n", r.FormValue("body-html"))
+	fmt.Printf("Post from website! sender = %v\n", r.FormValue("sender"))
+	fmt.Printf("Post from website! From = %v\n", r.FormValue("From"))
+	//fmt.Printf("Post from website! r.Form = %v\n", r.Form)
+	//fmt.Printf("Post from website! r.PostForm = %v\n", r.PostForm)
 
 	//fmt.Printf("%v", r)
 
