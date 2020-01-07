@@ -16,34 +16,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
 
-func forwardEmail(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Email forwarded")
-
-	/*if err := r.ParseForm(); err != nil {
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}*/
-	fmt.Printf("Post from website! subject = %v\n", r.FormValue("Subject"))
-	fmt.Printf("Post from website! body-html = %v\n", r.FormValue("body-html"))
-	fmt.Printf("Post from website! sender = %v\n", r.FormValue("sender"))
-	fmt.Printf("Post from website! To = %v\n", r.FormValue("To"))
-	//fmt.Printf("Post from website! r.Form = %v\n", r.Form)
-	//fmt.Printf("Post from website! r.PostForm = %v\n", r.PostForm)
-
-	//fmt.Printf("%v", r)
-
+func sendEmailWithMailgun(recipient string, body string) {
 	domain := os.Getenv("MAILGUN_DOMAINS")
 	secretKey := os.Getenv("MAILGUN_PRIVATE_KEY")
-	emailSender := os.Getenv("EMAIL_SENDER")
-	emailRecipient := os.Getenv("EMAIL_RECIPIENT")
+
+	sender := os.Getenv("EMAIL_SENDER")
+	subject := "Ahoj, máš zprávu od Ježíška"
 
 	// Create an instance of the Mailgun Client
 	mg := mailgun.NewMailgun(domain, secretKey)
-
-	sender := emailSender
-	subject := "Test!"
-	body := "Hello from Mailgun Go!"
-	recipient := emailRecipient
 
 	// The message object allows you to add attachments and Bcc recipients
 	message := mg.NewMessage(sender, subject, body, recipient)
@@ -59,6 +40,22 @@ func forwardEmail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Printf("ID: %s Resp: %s\n", id, resp)
+}
+
+func forwardEmail(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Email forwarded")
+
+	fmt.Printf("Post from website! subject = %v\n", r.FormValue("Subject"))
+	fmt.Printf("Post from website! body-html = %v\n", r.FormValue("body-html"))
+	fmt.Printf("Post from website! sender = %v\n", r.FormValue("sender"))
+	fmt.Printf("Post from website! To = %v\n", r.FormValue("To"))
+
+	to := r.FormValue("Subject")
+	body := r.FormValue("body-html")
+
+	if to != "" && body != "" {
+		sendEmailWithMailgun(to, body)
+	}
 }
 
 func main() {
