@@ -26,7 +26,7 @@ func forwardEmail(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Post from website! subject = %v\n", r.FormValue("Subject"))
 	fmt.Printf("Post from website! body-html = %v\n", r.FormValue("body-html"))
 	fmt.Printf("Post from website! sender = %v\n", r.FormValue("sender"))
-	fmt.Printf("Post from website! From = %v\n", r.FormValue("From"))
+	fmt.Printf("Post from website! To = %v\n", r.FormValue("To"))
 	//fmt.Printf("Post from website! r.Form = %v\n", r.Form)
 	//fmt.Printf("Post from website! r.PostForm = %v\n", r.PostForm)
 
