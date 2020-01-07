@@ -23,9 +23,10 @@ func forwardEmail(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
-	fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+	fmt.Printf("Post from website! r.PostForm = %v\n", r.PostForm)
+	fmt.Printf("Post from website! r.Form = %v\n", r.Form)
 
-	fmt.Printf("%v", r)
+	//fmt.Printf("%v", r)
 
 	domain := os.Getenv("MAILGUN_DOMAINS")
 	secretKey := os.Getenv("MAILGUN_PRIVATE_KEY")
