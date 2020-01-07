@@ -19,6 +19,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func forwardEmail(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Email forwarded")
 
+	if err := r.ParseForm(); err != nil {
+		fmt.Fprintf(w, "ParseForm() err: %v", err)
+		return
+	}
+	fmt.Fprintf(w, "Post from website! r.PostFrom = %v\n", r.PostForm)
+
+	fmt.Printf("%v", r)
+
 	domain := os.Getenv("MAILGUN_DOMAINS")
 	secretKey := os.Getenv("MAILGUN_PRIVATE_KEY")
 	emailSender := os.Getenv("EMAIL_SENDER")
@@ -58,6 +66,8 @@ func main() {
 
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/forward", forwardEmail)
+
+	fmt.Printf("Starting server on port %s \n", os.Getenv("PORT"))
 
 	port := ":" + os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(port, nil))
