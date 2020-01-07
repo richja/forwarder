@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -16,12 +17,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
 
-func sendEmailWithMailgun(recipient string, body string) {
+func sendEmailWithMailgun(recipient string, body string) (string, string, error) {
 	domain := os.Getenv("MAILGUN_DOMAINS")
 	secretKey := os.Getenv("MAILGUN_PRIVATE_KEY")
 
 	sender := os.Getenv("EMAIL_SENDER")
-	subject := "Ahoj, máš zprávu od Ježíška"
+	subject := "Hi, someone sent you a message"
 
 	// Create an instance of the Mailgun Client
 	mg := mailgun.NewMailgun(domain, secretKey)
@@ -33,18 +34,18 @@ func sendEmailWithMailgun(recipient string, body string) {
 	defer cancel()
 
 	// Send the message	with a 10 second timeout
-	resp, id, err := mg.Send(ctx, message)
+	return mg.Send(ctx, message)
+	//return resp, id, err
+}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+func isEmail(email string) bool {
+	var rxEmail = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	fmt.Printf("error: '%s' mentioned in subject is not a valid email address\n", email)
 
-	fmt.Printf("ID: %s Resp: %s\n", id, resp)
+	return len(email) > 254 || !rxEmail.MatchString(email)
 }
 
 func forwardEmail(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Email forwarded")
-
 	fmt.Printf("Post from website! subject = %v\n", r.FormValue("Subject"))
 	fmt.Printf("Post from website! body-html = %v\n", r.FormValue("body-html"))
 	fmt.Printf("Post from website! sender = %v\n", r.FormValue("sender"))
@@ -53,8 +54,18 @@ func forwardEmail(w http.ResponseWriter, r *http.Request) {
 	to := r.FormValue("Subject")
 	body := r.FormValue("body-html")
 
-	if to != "" && body != "" {
-		sendEmailWithMailgun(to, body)
+	if to != "" && isEmail(to) && body != "" {
+		resp, id, err := sendEmailWithMailgun(to, body)
+
+		if err != nil {
+			fmt.Fprintf(w, "Sorry, something wrong happened, please try again later")
+			log.Fatal(err)
+		}
+
+		fmt.Fprintf(w, "Email forwarded!")
+		fmt.Printf("ID: %s Resp: %s\n", id, resp)
+	} else {
+		fmt.Fprintf(w, "Missing or invalid recepient email")
 	}
 }
 
