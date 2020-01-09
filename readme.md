@@ -17,3 +17,6 @@ Forward email sent on set email address to email address specificed in the subje
 ## To run
 1) Run `go run forwarder` to start HTTP server
 2) Go to http://localhost:8080
+
+## To run tests
+1) Run `go test -v` to build and run tests
